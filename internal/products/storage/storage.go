@@ -14,12 +14,16 @@ type Product struct {
 	IsPublished bool
 	Expiration  time.Time
 	Price       float64
+	WarehouseId	int
 }
 
 // StorageProduct is an interface for product storage
 type StorageProduct interface {
 	// GetOne returns one product by id
 	GetOne(id int) (p *Product, err error)
+
+	// GetAll returns all products
+	GetAll() (ps []*Product, err error)
 
 	// Store stores product
 	Store(p *Product) (err error)

@@ -22,6 +22,7 @@ type ProductMySQL struct {
 	IsPublished	sql.NullBool
 	Expiration	sql.NullTime
 	Price		sql.NullFloat64
+	WarehouseId	sql.NullInt32
 }
 
 // ImplStorageProductMySQL is an implementation of StorageProduct interface
@@ -32,7 +33,7 @@ type ImplStorageProductMySQL struct {
 // GetOne returns one product by id
 func (impl *ImplStorageProductMySQL) GetOne(id int) (p *Product, err error) {
 	// query
-	query := "SELECT id, name, quantity, code_value, is_published, expiration, price FROM products WHERE id = ?"
+	query := "SELECT id, name, quantity, code_value, is_published, expiration, price, warehouse_id FROM products WHERE id = ?"
 
 	// prepare statement
 	var stmt *sql.Stmt
@@ -59,7 +60,7 @@ func (impl *ImplStorageProductMySQL) GetOne(id int) (p *Product, err error) {
 
 	// scan row
 	var pr ProductMySQL
-	err = row.Scan(&pr.Id, &pr.Name, &pr.Quantity, &pr.CodeValue, &pr.IsPublished, &pr.Expiration, &pr.Price)
+	err = row.Scan(&pr.Id, &pr.Name, &pr.Quantity, &pr.CodeValue, &pr.IsPublished, &pr.Expiration, &pr.Price, &pr.WarehouseId)
 	if err != nil {
 		err = fmt.Errorf("%w. %v", ErrStorageProductInternal, err)
 		return
@@ -87,6 +88,73 @@ func (impl *ImplStorageProductMySQL) GetOne(id int) (p *Product, err error) {
 	}
 	if pr.Price.Valid {
 		(*p).Price = pr.Price.Float64
+	}
+	if pr.WarehouseId.Valid {
+		(*p).WarehouseId = int(pr.WarehouseId.Int32)
+	}
+
+	return
+}
+
+// GetAll returns all products
+func (impl *ImplStorageProductMySQL) GetAll() (ps []*Product, err error) {
+	// query
+	query := "SELECT id, name, quantity, code_value, is_published, expiration, price, warehouse_id FROM products"
+
+	// prepare statement
+	var stmt *sql.Stmt
+	stmt, err = impl.db.Prepare(query)
+	if err != nil {
+		err = fmt.Errorf("%w. %v", ErrStorageProductInternal, err)
+		return
+	}
+	defer stmt.Close()
+
+	// execute query
+	rows, err := stmt.Query()
+	if err != nil {
+		err = fmt.Errorf("%w. %v", ErrStorageProductInternal, err)
+		return
+	}
+	defer rows.Close()
+
+	// scan rows
+	for rows.Next() {
+		var pr ProductMySQL
+		err = rows.Scan(&pr.Id, &pr.Name, &pr.Quantity, &pr.CodeValue, &pr.IsPublished, &pr.Expiration, &pr.Price, &pr.WarehouseId)
+		if err != nil {
+			err = fmt.Errorf("%w. %v", ErrStorageProductInternal, err)
+			return
+		}
+
+		// serialization
+		p := new(Product)
+		if pr.Id.Valid {
+			p.Id = int(pr.Id.Int32)
+		}
+		if pr.Name.Valid {
+			p.Name = pr.Name.String
+		}
+		if pr.Quantity.Valid {
+			p.Quantity = int(pr.Quantity.Int32)
+		}
+		if pr.CodeValue.Valid {
+			p.CodeValue = pr.CodeValue.String
+		}
+		if pr.IsPublished.Valid {
+			p.IsPublished = pr.IsPublished.Bool
+		}
+		if pr.Expiration.Valid {
+			p.Expiration = pr.Expiration.Time
+		}
+		if pr.Price.Valid {
+			p.Price = pr.Price.Float64
+		}
+		if pr.WarehouseId.Valid {
+			p.WarehouseId = int(pr.WarehouseId.Int32)
+		}
+
+		ps = append(ps, p)
 	}
 
 	return
@@ -120,9 +188,13 @@ func (impl *ImplStorageProductMySQL) Store(p *Product) (err error) {
 		pr.Price.Valid = true
 		pr.Price.Float64 = (*p).Price
 	}
+	if (*p).WarehouseId != 0 {
+		pr.WarehouseId.Valid = true
+		pr.WarehouseId.Int32 = int32((*p).WarehouseId)
+	}
 
 	// query
-	query := "INSERT INTO products (name, quantity, code_value, is_published, expiration, price) VALUES (?, ?, ?, ?, ?, ?)"
+	query := "INSERT INTO products (name, quantity, code_value, is_published, expiration, price, warehouse_id) VALUES (?, ?, ?, ?, ?, ?, ?)"
 
 	// prepare statement
 	var stmt *sql.Stmt
@@ -134,7 +206,7 @@ func (impl *ImplStorageProductMySQL) Store(p *Product) (err error) {
 	defer stmt.Close()
 
 	// execute query
-	result, err := stmt.Exec(pr.Name, pr.Quantity, pr.CodeValue, pr.IsPublished, pr.Expiration, pr.Price)
+	result, err := stmt.Exec(pr.Name, pr.Quantity, pr.CodeValue, pr.IsPublished, pr.Expiration, pr.Price, pr.WarehouseId)
 	if err != nil {
 		errMySQL, ok := err.(*mysql.MySQLError); if ok {
 			switch errMySQL.Number {
@@ -203,9 +275,13 @@ func (impl *ImplStorageProductMySQL) Update(p *Product) (err error) {
 		pr.Price.Valid = true
 		pr.Price.Float64 = (*p).Price
 	}
+	if (*p).WarehouseId != 0 {
+		pr.WarehouseId.Valid = true
+		pr.WarehouseId.Int32 = int32((*p).WarehouseId)
+	}
 
 	// query
-	query := "UPDATE products SET name = ?, quantity = ?, code_value = ?, is_published = ?, expiration = ?, price = ? WHERE id = ?"
+	query := "UPDATE products SET name = ?, quantity = ?, code_value = ?, is_published = ?, expiration = ?, price = ?, warehouse_id = ? WHERE id = ?"
 
 	// prepare statement
 	var stmt *sql.Stmt
@@ -217,7 +293,7 @@ func (impl *ImplStorageProductMySQL) Update(p *Product) (err error) {
 	defer stmt.Close()
 
 	// execute query
-	result, err := stmt.Exec(pr.Name, pr.Quantity, pr.CodeValue, pr.IsPublished, pr.Expiration, pr.Price, (*p).Id)
+	result, err := stmt.Exec(pr.Name, pr.Quantity, pr.CodeValue, pr.IsPublished, pr.Expiration, pr.Price, pr.WarehouseId, (*p).Id)
 	if err != nil {
 		errMySQL, ok := err.(*mysql.MySQLError); if ok {
 			switch errMySQL.Number {

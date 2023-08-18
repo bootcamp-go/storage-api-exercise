@@ -31,6 +31,7 @@ type ResponseProduct struct {
 	IsPublished bool		`json:"is_published"`
 	Expiration  time.Time	`json:"expiration"`
 	Price       float64		`json:"price"`
+	WarehouseId int			`json:"warehouse_id"`
 }
 type ResponseBody struct {
 	Message string			 `json:"message"`
@@ -77,8 +78,62 @@ func (c *ControllerProduct) GetOne() http.HandlerFunc {
 				IsPublished: product.IsPublished,
 				Expiration: product.Expiration,
 				Price: product.Price,
+				WarehouseId: product.WarehouseId,
 			},
 			Error: false,
+		}
+
+		response.JSON(w, code, body)
+	}
+}
+
+// GetAll returns all products
+type ResponseProductGetAll struct {
+	Name    	string		`json:"name"`
+	Quantity	int			`json:"quantity"`
+	CodeValue	string		`json:"code_value"`
+	IsPublished bool		`json:"is_published"`
+	Expiration  time.Time	`json:"expiration"`
+	Price       float64		`json:"price"`
+	WarehouseId int			`json:"warehouse_id"`
+}
+type ResponseBodyGetAll struct {
+	Message string			 `json:"message"`
+	Data    []*ResponseProduct `json:"data"`
+	Error   bool			 `json:"error"`
+}
+func (c *ControllerProduct) GetAll() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		// ...
+
+		// process
+		products, err := c.storage.GetAll()
+		if err != nil {
+			code := http.StatusInternalServerError
+			body := &ResponseBody{Message: "internal error", Data: nil, Error: true}
+
+			response.JSON(w, code, body)
+			return
+		}
+
+		// response
+		code := http.StatusOK
+		body := &ResponseBodyGetAll{
+			Message: "success",
+			Data:    make([]*ResponseProduct, 0, len(products)),	// serialization
+			Error:   false,
+		}
+		for _, product := range products {
+			body.Data = append(body.Data, &ResponseProduct{
+				Name:   product.Name,
+				Quantity: product.Quantity,
+				CodeValue: product.CodeValue,
+				IsPublished: product.IsPublished,
+				Expiration: product.Expiration,
+				Price: product.Price,
+				WarehouseId: product.WarehouseId,
+			})
 		}
 
 		response.JSON(w, code, body)
@@ -164,7 +219,6 @@ func (c *ControllerProduct) Store() http.HandlerFunc {
 		response.JSON(w, code, body)
 	}
 }
-
 
 // Update updates product
 type RequestProductUpdate struct {
@@ -283,7 +337,6 @@ func (c *ControllerProduct) Update() http.HandlerFunc {
 		response.JSON(w, code, body)
 	}
 }
-
 
 // Delete deletes product by id
 type ResponseBodyDelete struct {

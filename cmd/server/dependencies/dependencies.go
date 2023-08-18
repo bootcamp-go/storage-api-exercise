@@ -2,7 +2,8 @@ package dependencies
 
 import (
 	"app/cmd/server/handlers"
-	"app/internal/products/storage"
+	storagePr "app/internal/products/storage"
+	storageWh "app/internal/warehouses/storage"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -52,8 +53,11 @@ func (a *Application) Run() (err error) {
 	}
 
 	// -> products
-	stProducts := storage.NewImplStorageProductMySQL(db)
+	stProducts := storagePr.NewImplStorageProductMySQL(db)
 	ctProducts := handlers.NewControllerProduct(stProducts)
+	// -> warehouses
+	stWarehouses := storageWh.NewImplStorageWarehouseMySQL(db)
+	ctWarehouses := handlers.NewControllerWarehouses(stWarehouses)
 
 	// -> server
 	r := chi.NewRouter()
@@ -61,9 +65,15 @@ func (a *Application) Run() (err error) {
 	// routes
 	// -> products
 	r.Get("/products/{id}", ctProducts.GetOne())
+	r.Get("/products", ctProducts.GetAll())
 	r.Post("/products", ctProducts.Store())
 	r.Put("/products/{id}", ctProducts.Update())
 	r.Delete("/products/{id}", ctProducts.Delete())
+	// -> warehouses
+	r.Get("/warehouses/{id}", ctWarehouses.GetOne())
+	r.Get("/warehouses", ctWarehouses.GetAll())
+	r.Post("/warehouses", ctWarehouses.Create())
+	r.Get("/warehouses/reportProducts", ctWarehouses.ReportProducts())
 
 	// run
 	err = http.ListenAndServe(a.cfg.Server.Addr(), r)
