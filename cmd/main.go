@@ -19,7 +19,7 @@ func main() {
 			Passwd:               "",
 			Net:                  "tcp",
 			Addr:                 "127.0.0.1:3306",
-			DBName:               "app",
+			DBName:               "storage_api_db",
 		},
 		Address: "127.0.0.1:8080",
 	}
