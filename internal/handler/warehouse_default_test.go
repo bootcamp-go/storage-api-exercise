@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -230,6 +231,83 @@ func TestWarehousesDefault_GetAll(t *testing.T) {
 		// assert
 		expectedCode := http.StatusOK
 		expectedBody := `{"message":"warehouses found","data":[]}`
+		require.Equal(t, expectedCode, response.Code)
+		require.JSONEq(t, expectedBody, response.Body.String())
+	})
+}
+
+// TestWarehousesDefault_Create tests the Create method
+func TestWarehousesDefault_Create(t *testing.T) {
+	t.Run("case 1: success - creates a warehouse", func(t *testing.T) {
+		// arrange
+		// - database: connection
+		db, err := sql.Open("txdb", "")
+		require.NoError(t, err)
+		defer db.Close()
+		// - database: teardown
+		defer func(db *sql.DB) {
+			// delete warehouses
+			_, err = db.Exec("DELETE FROM `warehouses`;")
+			if err != nil {
+				panic(err)
+			}
+			_, err = db.Exec("ALTER TABLE `warehouses` AUTO_INCREMENT = 1;")
+			if err != nil {
+				panic(err)
+			}
+		}(db)
+		// - database: setup
+		// ...
+
+		// - repository: mysql
+		rp := repository.NewWarehousesMySQL(db)
+		// - handler: default
+		hd := handler.NewWarehousesDefault(rp)
+		hdFunc := hd.Create()
+
+		// act
+		// - request
+		request := httptest.NewRequest(http.MethodPost, "/warehouses", strings.NewReader(
+			`{"name":"warehouse 1","address":"address 1","telephone":"telephone 1","capacity":100}`,
+		))
+		request.Header.Set("Content-Type", "application/json")
+		// - response
+		response := httptest.NewRecorder()
+		hdFunc(response, request)
+
+		// assert
+		expectedCode := http.StatusCreated
+		expectedBody := `{"message":"warehouse created","data":{"id":1,"name":"warehouse 1","address":"address 1","telephone":"telephone 1","capacity":100}}`
+		require.Equal(t, expectedCode, response.Code)
+		require.JSONEq(t, expectedBody, response.Body.String())
+	})
+
+	t.Run("case 2: failure - invalid body", func(t *testing.T) {
+		// arrange
+		// - database: connection
+		// - database: teardown
+		// - database: setup
+
+		// - repository: mysql
+		// - handler: default
+		hd := handler.NewWarehousesDefault(nil)
+		hdFunc := hd.Create()
+
+		// act
+		// - request
+		request := httptest.NewRequest(http.MethodPost, "/warehouses", nil)
+		request.Header.Set("Content-Type", "application/json")
+		// - response
+		response := httptest.NewRecorder()
+		hdFunc(response, request)
+
+		// assert
+		expectedCode := http.StatusBadRequest
+		expectedBody := fmt.Sprintf(
+			`{"status":"%s","message":"%s"}`,
+			http.StatusText(expectedCode),
+			"invalid request body",
+		)
 		require.Equal(t, expectedCode, response.Code)
 		require.JSONEq(t, expectedBody, response.Body.String())
 	})
