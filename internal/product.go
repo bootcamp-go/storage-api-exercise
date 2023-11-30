@@ -18,4 +18,6 @@ type Product struct {
 	Expiration time.Time
 	// Price is the price of the product
 	Price float64
+	// WarehouseID is the warehouse id of the product
+	WarehouseID int
 }

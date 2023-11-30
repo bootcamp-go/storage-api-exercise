@@ -60,11 +60,13 @@ func (d *Default) Run() (err error) {
 		return
 	}
 	
-	// - repository: products
-	rp := repository.NewProductsDefault(db)
+	// - repository: default
+	rpPr := repository.NewProductsDefault(db)
+	rpWh := repository.NewWarehousesDefault(db)
 	
-	// - handler: products
-	hp := handler.NewProductsDefault(rp)
+	// - handler: default
+	hdPr := handler.NewProductsDefault(rpPr)
+	hdWh := handler.NewWarehousesDefault(rpWh)
 
 	// - router: chi
 	rt := chi.NewRouter()
@@ -73,14 +75,26 @@ func (d *Default) Run() (err error) {
 	rt.Use(middleware.Recoverer)
 	// - router: routes
 	rt.Route("/products", func(r chi.Router) {
+		// - GET /products/{id}
+		r.Get("/{id}", hdPr.GetOne())
 		// - GET /products
-		r.Get("/", hp.GetOne())
+		r.Get("/", hdPr.GetAll())
 		// - POST /products
-		r.Post("/", hp.Create())
+		r.Post("/", hdPr.Create())
 		// - PUT /products/{id}
-		r.Patch("/{id}", hp.Update())
+		r.Patch("/{id}", hdPr.Update())
 		// - DELETE /products/{id}
-		r.Delete("/{id}", hp.Delete())
+		r.Delete("/{id}", hdPr.Delete())
+	})
+	rt.Route("/warehouses", func(r chi.Router) {
+		// - GET /warehouses/{id}
+		r.Get("/{id}", hdWh.GetOne())
+		// - GET /warehouses
+		r.Get("/", hdWh.GetAll())
+		// - GET /warehouses/report-products
+		r.Get("/reportProducts", hdWh.GetReportProducts())
+		// - POST /warehouses
+		r.Post("/", hdWh.Create())
 	})
 
 	// run

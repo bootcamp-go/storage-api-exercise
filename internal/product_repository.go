@@ -15,6 +15,8 @@ var (
 type RepositoryProducts interface {
 	// GetOne returns a product by id
 	GetOne(id int) (p Product, err error)
+	// GetAll returns all products
+	GetAll() (p []Product, err error)
 	// Store stores a product
 	Store(p *Product) (err error)
 	// Update updates a product

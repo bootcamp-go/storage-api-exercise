@@ -22,7 +22,7 @@ type ProductsDefault struct {
 func (r *ProductsDefault) GetOne(id int) (p internal.Product, err error) {
 	// execute the query
 	row := r.db.QueryRow(
-		"SELECT `id`, `name`, `quantity`, `code_value`, `is_published`, `expiration`, `price` " +
+		"SELECT `id`, `name`, `quantity`, `code_value`, `is_published`, `expiration`, `price`, `warehouse_id` " +
 		"FROM `products` WHERE `id` = ?",
 		id,
 	)
@@ -31,7 +31,7 @@ func (r *ProductsDefault) GetOne(id int) (p internal.Product, err error) {
 	}
 
 	// scan the row into the product
-	err = row.Scan(&p.ID, &p.Name, &p.Quantity, &p.CodeValue, &p.IsPublished, &p.Expiration, &p.Price)
+	err = row.Scan(&p.ID, &p.Name, &p.Quantity, &p.CodeValue, &p.IsPublished, &p.Expiration, &p.Price, &p.WarehouseID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = internal.ErrProductNotFound
@@ -42,12 +42,40 @@ func (r *ProductsDefault) GetOne(id int) (p internal.Product, err error) {
 	return
 }
 
+// GetAll returns all products
+func (r *ProductsDefault) GetAll() (p []internal.Product, err error) {
+	// execute the query
+	rows, err := r.db.Query(
+		"SELECT `id`, `name`, `quantity`, `code_value`, `is_published`, `expiration`, `price`, `warehouse_id` " +
+		"FROM `products`",
+	)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	// scan the rows into the products
+	for rows.Next() {
+		var product internal.Product
+		err = rows.Scan(&product.ID, &product.Name, &product.Quantity, &product.CodeValue, &product.IsPublished, &product.Expiration, &product.Price, &product.WarehouseID)
+		if err != nil {
+			return
+		}
+		p = append(p, product)
+	}
+	if err = rows.Err(); err != nil {
+		return
+	}
+
+	return
+}
+
 // Store stores a product
 func (r *ProductsDefault) Store(p *internal.Product) (err error) {
 	// execute the query
 	result, err := r.db.Exec(
-		"INSERT INTO `products` (`name`, `quantity`, `code_value`, `is_published`, `expiration`, `price`) " +
-		"VALUES (?, ?, ?, ?, ?, ?)",
+		"INSERT INTO `products` (`name`, `quantity`, `code_value`, `is_published`, `expiration`, `price`, `warehouse_id`) " +
+		"VALUES (?, ?, ?, ?, ?, ?, ?)",
 		p.Name, p.Quantity, p.CodeValue, p.IsPublished, p.Expiration, p.Price,
 	)
 	if err != nil {
@@ -68,9 +96,9 @@ func (r *ProductsDefault) Store(p *internal.Product) (err error) {
 func (r *ProductsDefault) Update(p *internal.Product) (err error) {
 	// execute the query
 	_, err = r.db.Exec(
-		"UPDATE `products` SET `name` = ?, `quantity` = ?, `code_value` = ?, `is_published` = ?, `expiration` = ?, `price` = ? " +
+		"UPDATE `products` SET `name` = ?, `quantity` = ?, `code_value` = ?, `is_published` = ?, `expiration` = ?, `price` = ?, `warehouse_id` " +
 		"WHERE `id` = ?",
-		p.Name, p.Quantity, p.CodeValue, p.IsPublished, p.Expiration, p.Price, p.ID,
+		p.Name, p.Quantity, p.CodeValue, p.IsPublished, p.Expiration, p.Price, p.WarehouseID, p.ID,
 	)
 	if err != nil {
 		return
