@@ -27,14 +27,14 @@ type ProductsDefault struct {
 
 // ProductJSON is a struct that represents a product in JSON
 type ProductJSON struct {
-	ID int `json:"id"`
-	Name string `json:"name"`
-	Quantity int `json:"quantity"`
-	CodeValue string `json:"code_value"`
-	IsPublished bool `json:"is_published"`
-	Expiration string `json:"expiration"`
-	Price float64 `json:"price"`
-	WarehouseID int `json:"warehouse_id"`
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	Quantity    int     `json:"quantity"`
+	CodeValue   string  `json:"code_value"`
+	IsPublished bool    `json:"is_published"`
+	Expiration  string  `json:"expiration"`
+	Price       float64 `json:"price"`
+	WarehouseID int     `json:"warehouse_id"`
 }
 
 // GetOne returns a product by id
@@ -62,13 +62,13 @@ func (h *ProductsDefault) GetOne() http.HandlerFunc {
 		// response
 		// - serialize
 		data := ProductJSON{
-			ID: p.ID,
-			Name: p.Name,
-			Quantity: p.Quantity,
-			CodeValue: p.CodeValue,
+			ID:          p.ID,
+			Name:        p.Name,
+			Quantity:    p.Quantity,
+			CodeValue:   p.CodeValue,
 			IsPublished: p.IsPublished,
-			Expiration: p.Expiration.Format(time.DateOnly),
-			Price: p.Price,
+			Expiration:  p.Expiration.Format(time.DateOnly),
+			Price:       p.Price,
 			WarehouseID: p.WarehouseID,
 		}
 		response.JSON(w, http.StatusOK, map[string]any{"message": "product found", "data": data})
@@ -80,7 +80,7 @@ func (h *ProductsDefault) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// request
 		// ...
-		
+
 		// process
 		p, err := h.rp.GetAll()
 		if err != nil {
@@ -90,16 +90,16 @@ func (h *ProductsDefault) GetAll() http.HandlerFunc {
 
 		// response
 		// - serialize
-		var data []ProductJSON
+		data := make([]ProductJSON, 0, len(p))
 		for _, v := range p {
 			data = append(data, ProductJSON{
-				ID: v.ID,
-				Name: v.Name,
-				Quantity: v.Quantity,
-				CodeValue: v.CodeValue,
+				ID:          v.ID,
+				Name:        v.Name,
+				Quantity:    v.Quantity,
+				CodeValue:   v.CodeValue,
 				IsPublished: v.IsPublished,
-				Expiration: v.Expiration.Format(time.DateOnly),
-				Price: v.Price,
+				Expiration:  v.Expiration.Format(time.DateOnly),
+				Price:       v.Price,
 				WarehouseID: v.WarehouseID,
 			})
 		}
@@ -107,16 +107,15 @@ func (h *ProductsDefault) GetAll() http.HandlerFunc {
 	}
 }
 
-
 // RequestBodyProductCreate is a struct that represents the request body of a product to create
 type RequestBodyProductCreate struct {
-	Name string `json:"name"`
-	Quantity int `json:"quantity"`
-	CodeValue string `json:"code_value"`
-	IsPublished bool `json:"is_published"`
-	Expiration string `json:"expiration"`
-	Price float64 `json:"price"`
-	WarehouseID int `json:"warehouse_id"`
+	Name        string  `json:"name"`
+	Quantity    int     `json:"quantity"`
+	CodeValue   string  `json:"code_value"`
+	IsPublished bool    `json:"is_published"`
+	Expiration  string  `json:"expiration"`
+	Price       float64 `json:"price"`
+	WarehouseID int     `json:"warehouse_id"`
 }
 
 // Create creates a product
@@ -136,12 +135,12 @@ func (h *ProductsDefault) Create() http.HandlerFunc {
 
 		// process
 		p := internal.Product{
-			Name: body.Name,
-			Quantity: body.Quantity,
-			CodeValue: body.CodeValue,
+			Name:        body.Name,
+			Quantity:    body.Quantity,
+			CodeValue:   body.CodeValue,
 			IsPublished: body.IsPublished,
-			Expiration: exp,
-			Price: body.Price,
+			Expiration:  exp,
+			Price:       body.Price,
 			WarehouseID: body.WarehouseID,
 		}
 		if err := h.rp.Store(&p); err != nil {
@@ -159,13 +158,13 @@ func (h *ProductsDefault) Create() http.HandlerFunc {
 		// response
 		// - serialize
 		data := ProductJSON{
-			ID: p.ID,
-			Name: p.Name,
-			Quantity: p.Quantity,
-			CodeValue: p.CodeValue,
+			ID:          p.ID,
+			Name:        p.Name,
+			Quantity:    p.Quantity,
+			CodeValue:   p.CodeValue,
 			IsPublished: p.IsPublished,
-			Expiration: p.Expiration.Format(time.DateOnly),
-			Price: p.Price,
+			Expiration:  p.Expiration.Format(time.DateOnly),
+			Price:       p.Price,
 			WarehouseID: p.WarehouseID,
 		}
 		response.JSON(w, http.StatusCreated, map[string]any{"message": "product created", "data": data})
@@ -174,13 +173,13 @@ func (h *ProductsDefault) Create() http.HandlerFunc {
 
 // RequestBodyProductUpdate is a struct that represents the request body of a product to update
 type RequestBodyProductUpdate struct {
-	Name string `json:"name"`
-	Quantity int `json:"quantity"`
-	CodeValue string `json:"code_value"`
-	IsPublished bool `json:"is_published"`
-	Expiration string `json:"expiration"`
-	Price float64 `json:"price"`
-	WarehouseID int `json:"warehouse_id"`
+	Name        string  `json:"name"`
+	Quantity    int     `json:"quantity"`
+	CodeValue   string  `json:"code_value"`
+	IsPublished bool    `json:"is_published"`
+	Expiration  string  `json:"expiration"`
+	Price       float64 `json:"price"`
+	WarehouseID int     `json:"warehouse_id"`
 }
 
 // Update updates a product
@@ -207,12 +206,12 @@ func (h *ProductsDefault) Update() http.HandlerFunc {
 		}
 		// - patch product
 		body := RequestBodyProductUpdate{
-			Name: p.Name,
-			Quantity: p.Quantity,
-			CodeValue: p.CodeValue,
+			Name:        p.Name,
+			Quantity:    p.Quantity,
+			CodeValue:   p.CodeValue,
 			IsPublished: p.IsPublished,
-			Expiration: p.Expiration.Format(time.DateOnly),
-			Price: p.Price,
+			Expiration:  p.Expiration.Format(time.DateOnly),
+			Price:       p.Price,
 			WarehouseID: p.WarehouseID,
 		}
 		if err := request.JSON(r, &body); err != nil {
@@ -247,13 +246,13 @@ func (h *ProductsDefault) Update() http.HandlerFunc {
 		// response
 		// - serialize
 		data := ProductJSON{
-			ID: p.ID,
-			Name: p.Name,
-			Quantity: p.Quantity,
-			CodeValue: p.CodeValue,
+			ID:          p.ID,
+			Name:        p.Name,
+			Quantity:    p.Quantity,
+			CodeValue:   p.CodeValue,
 			IsPublished: p.IsPublished,
-			Expiration: p.Expiration.Format(time.DateOnly),
-			Price: p.Price,
+			Expiration:  p.Expiration.Format(time.DateOnly),
+			Price:       p.Price,
 			WarehouseID: p.WarehouseID,
 		}
 		response.JSON(w, http.StatusOK, map[string]any{"message": "product updated", "data": data})

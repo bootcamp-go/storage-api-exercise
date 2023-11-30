@@ -5,21 +5,21 @@ import (
 	"database/sql"
 )
 
-// NewProductsDefault returns a new instance of ProductsDefault
-func NewProductsDefault(db *sql.DB) *ProductsDefault {
-	return &ProductsDefault{
+// NewProductsMySQL returns a new instance of ProductsMySQL
+func NewProductsMySQL(db *sql.DB) *ProductsMySQL {
+	return &ProductsMySQL{
 		db: db,
 	}
 }
 
-// ProductsDefault is a struct that represents a product repository
-type ProductsDefault struct {
+// ProductsMySQL is a struct that represents a product repository
+type ProductsMySQL struct {
 	// db is the database connection
 	db *sql.DB
 }
 
 // GetOne returns a product by id
-func (r *ProductsDefault) GetOne(id int) (p internal.Product, err error) {
+func (r *ProductsMySQL) GetOne(id int) (p internal.Product, err error) {
 	// execute the query
 	row := r.db.QueryRow(
 		"SELECT `id`, `name`, `quantity`, `code_value`, `is_published`, `expiration`, `price`, `warehouse_id` " +
@@ -43,7 +43,7 @@ func (r *ProductsDefault) GetOne(id int) (p internal.Product, err error) {
 }
 
 // GetAll returns all products
-func (r *ProductsDefault) GetAll() (p []internal.Product, err error) {
+func (r *ProductsMySQL) GetAll() (p []internal.Product, err error) {
 	// execute the query
 	rows, err := r.db.Query(
 		"SELECT `id`, `name`, `quantity`, `code_value`, `is_published`, `expiration`, `price`, `warehouse_id` " +
@@ -71,7 +71,7 @@ func (r *ProductsDefault) GetAll() (p []internal.Product, err error) {
 }
 
 // Store stores a product
-func (r *ProductsDefault) Store(p *internal.Product) (err error) {
+func (r *ProductsMySQL) Store(p *internal.Product) (err error) {
 	// execute the query
 	result, err := r.db.Exec(
 		"INSERT INTO `products` (`name`, `quantity`, `code_value`, `is_published`, `expiration`, `price`, `warehouse_id`) " +
@@ -93,7 +93,7 @@ func (r *ProductsDefault) Store(p *internal.Product) (err error) {
 }
 
 // Update updates a product
-func (r *ProductsDefault) Update(p *internal.Product) (err error) {
+func (r *ProductsMySQL) Update(p *internal.Product) (err error) {
 	// execute the query
 	_, err = r.db.Exec(
 		"UPDATE `products` SET `name` = ?, `quantity` = ?, `code_value` = ?, `is_published` = ?, `expiration` = ?, `price` = ?, `warehouse_id` " +
@@ -108,7 +108,7 @@ func (r *ProductsDefault) Update(p *internal.Product) (err error) {
 }
 
 // Delete deletes a product by id
-func (r *ProductsDefault) Delete(id int) (err error) {
+func (r *ProductsMySQL) Delete(id int) (err error) {
 	// execute the query
 	_, err = r.db.Exec(
 		"DELETE FROM `products` WHERE `id` = ?",

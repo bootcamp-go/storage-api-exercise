@@ -61,8 +61,8 @@ func (d *Default) Run() (err error) {
 	}
 	
 	// - repository: default
-	rpPr := repository.NewProductsDefault(db)
-	rpWh := repository.NewWarehousesDefault(db)
+	rpPr := repository.NewProductsMySQL(db)
+	rpWh := repository.NewWarehousesMySQL(db)
 	
 	// - handler: default
 	hdPr := handler.NewProductsDefault(rpPr)

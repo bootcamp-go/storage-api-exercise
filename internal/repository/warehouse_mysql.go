@@ -5,21 +5,21 @@ import (
 	"database/sql"
 )
 
-// NewWarehousesDefault returns a new instance of WarehousesDefault
-func NewWarehousesDefault(db *sql.DB) *WarehousesDefault {
-	return &WarehousesDefault{
+// NewWarehousesMySQL returns a new instance of WarehousesMySQL
+func NewWarehousesMySQL(db *sql.DB) *WarehousesMySQL {
+	return &WarehousesMySQL{
 		db: db,
 	}
 }
 
-// WarehousesDefault is a struct that represents a warehouse repository
-type WarehousesDefault struct {
+// WarehousesMySQL is a struct that represents a warehouse repository
+type WarehousesMySQL struct {
 	// db is the database connection
 	db *sql.DB
 }
 
 // GetOne returns a warehouse by id
-func (r *WarehousesDefault) GetOne(id int) (w internal.Warehouse, err error) {
+func (r *WarehousesMySQL) GetOne(id int) (w internal.Warehouse, err error) {
 	// execute the query
 	row := r.db.QueryRow(
 		"SELECT `id`, `name`, `address`, `telephone`, `capacity` " +
@@ -43,7 +43,7 @@ func (r *WarehousesDefault) GetOne(id int) (w internal.Warehouse, err error) {
 }
 
 // GetAll returns all warehouses
-func (r *WarehousesDefault) GetAll() (w []internal.Warehouse, err error) {
+func (r *WarehousesMySQL) GetAll() (w []internal.Warehouse, err error) {
 	// execute the query
 	rows, err := r.db.Query(
 		"SELECT `id`, `name`, `address`, `telephone`, `capacity` " +
@@ -69,7 +69,7 @@ func (r *WarehousesDefault) GetAll() (w []internal.Warehouse, err error) {
 }
 
 // GetReportProducts returns a report of the amount of products in the warehouses
-func (r *WarehousesDefault) GetReportProducts(filter map[string]any) (w []internal.WarehouseReportProducts, err error) {
+func (r *WarehousesMySQL) GetReportProducts(filter map[string]any) (w []internal.WarehouseReportProducts, err error) {
 	// query: default
 	query := "SELECT `w.name`, COUNT(`p.id`) AS `products_count` FROM `warehouses` AS `w` " +
 			 "LEFT JOIN `products` AS `p` ON `w.id` = `p.warehouse_id` " +
@@ -115,7 +115,7 @@ func (r *WarehousesDefault) GetReportProducts(filter map[string]any) (w []intern
 }
 
 // Store stores a warehouse
-func (r *WarehousesDefault) Store(w *internal.Warehouse) (err error) {
+func (r *WarehousesMySQL) Store(w *internal.Warehouse) (err error) {
 	// execute the query
 	result, err := r.db.Exec(
 		"INSERT INTO `warehouses` (`name`, `address`, `telephone`, `capacity`) VALUES (?, ?, ?, ?)",
