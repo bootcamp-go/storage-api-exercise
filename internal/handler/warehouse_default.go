@@ -89,7 +89,7 @@ func (h *WarehousesDefault) GetAll() http.HandlerFunc {
 
 		// response
 		// - serialize
-		var data []WarehouseJSON
+		data := make([]WarehouseJSON, 0, len(wh))
 		for _, v := range wh {
 			data = append(data, WarehouseJSON{
 				ID: v.ID,

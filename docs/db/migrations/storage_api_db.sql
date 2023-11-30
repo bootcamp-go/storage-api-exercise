@@ -21,7 +21,7 @@ CREATE TABLE `products` (
   `code_value` varchar(255) NOT NULL,
   `is_published` boolean NOT NULL,
   `expiration` date NOT NULL,
-  `price` decimal(10,2) NOT NULL,
+  `price` decimal(10, 2) NOT NULL,
   `warehouse_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_products_warehouse_id` (`warehouse_id`),
