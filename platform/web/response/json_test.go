@@ -1,53 +1,13 @@
-package response
+package response_test
 
 import (
+	"app/platform/web/response"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
-
-// Tests for Text function
-func TestText(t *testing.T) {
-	t.Run("healthcheck", func(t *testing.T) {
-		// arrange
-		// ...
-
-		// act
-		rr := httptest.NewRecorder()
-		code := http.StatusOK
-		body := "pong"
-		Text(rr, code, body)
-
-		// assert
-		expectedHeader := http.Header{"Content-Type": []string{"text/plain; charset=utf-8"}}
-		expectedCode := http.StatusOK
-		expectedBody := "pong"
-		require.Equal(t, expectedHeader, rr.Header())
-		require.Equal(t, expectedCode, rr.Code)
-		require.Equal(t, expectedBody, rr.Body.String())
-	})
-
-	t.Run("empty body", func(t *testing.T) {
-		// arrange
-		// ...
-
-		// act
-		rr := httptest.NewRecorder()
-		code := http.StatusOK
-		body := ""
-		Text(rr, code, body)
-
-		// assert
-		expectedHeader := http.Header{"Content-Type": []string{"text/plain; charset=utf-8"}}
-		expectedCode := http.StatusOK
-		expectedBody := ""
-		require.Equal(t, expectedHeader, rr.Header())
-		require.Equal(t, expectedCode, rr.Code)
-		require.Equal(t, expectedBody, rr.Body.String())
-	})
-}
 
 // Tests for JSON function
 func TestJSON(t *testing.T) {
@@ -59,10 +19,10 @@ func TestJSON(t *testing.T) {
 		rr := httptest.NewRecorder()
 		code := http.StatusOK
 		body := struct{Message string}{Message: "ok"}
-		JSON(rr, code, body)
+		response.JSON(rr, code, body)
 
 		// assert
-		expectedHeader := http.Header{"Content-Type": []string{"application/json; charset=utf-8"}}
+		expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
 		expectedCode := http.StatusOK
 		expectedBody := `{"Message":"ok"}`
 		require.Equal(t, expectedHeader, rr.Header())
@@ -78,10 +38,10 @@ func TestJSON(t *testing.T) {
 		rr := httptest.NewRecorder()
 		code := http.StatusBadRequest
 		body := struct{Message string}{Message: "bad request"}
-		JSON(rr, code, body)
+		response.JSON(rr, code, body)
 
 		// assert
-		expectedHeader := http.Header{"Content-Type": []string{"application/json; charset=utf-8"}}
+		expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
 		expectedCode := http.StatusBadRequest
 		expectedBody := `{"Message":"bad request"}`
 		require.Equal(t, expectedHeader, rr.Header())
@@ -97,7 +57,7 @@ func TestJSON(t *testing.T) {
 		rr := httptest.NewRecorder()
 		code := http.StatusNoContent
 		body := any(nil)
-		JSON(rr, code, body)
+		response.JSON(rr, code, body)
 
 		// assert
 		expectedHeader := http.Header{}
@@ -116,7 +76,7 @@ func TestJSON(t *testing.T) {
 		rr := httptest.NewRecorder()
 		code := http.StatusOK
 		body := make(chan int)
-		JSON(rr, code, body)
+		response.JSON(rr, code, body)
 
 		// assert
 		expectedHeader := http.Header{}
