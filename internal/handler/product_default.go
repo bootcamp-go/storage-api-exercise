@@ -27,13 +27,13 @@ type ProductsDefault struct {
 
 // ProductJSON is a struct that represents a product in JSON
 type ProductJSON struct {
-	ID int `json:"id"`
-	Name string `json:"name"`
-	Quantity int `json:"quantity"`
-	CodeValue string `json:"code_value"`
-	IsPublished bool `json:"is_published"`
-	Expiration string `json:"expiration"`
-	Price float64 `json:"price"`
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	Quantity    int     `json:"quantity"`
+	CodeValue   string  `json:"code_value"`
+	IsPublished bool    `json:"is_published"`
+	Expiration  string  `json:"expiration"`
+	Price       float64 `json:"price"`
 }
 
 // GetOne returns a product by id
@@ -61,13 +61,13 @@ func (h *ProductsDefault) GetOne() http.HandlerFunc {
 		// response
 		// - serialize
 		data := ProductJSON{
-			ID: p.ID,
-			Name: p.Name,
-			Quantity: p.Quantity,
-			CodeValue: p.CodeValue,
+			ID:          p.ID,
+			Name:        p.Name,
+			Quantity:    p.Quantity,
+			CodeValue:   p.CodeValue,
 			IsPublished: p.IsPublished,
-			Expiration: p.Expiration.Format(time.DateOnly),
-			Price: p.Price,
+			Expiration:  p.Expiration.Format(time.DateOnly),
+			Price:       p.Price,
 		}
 		response.JSON(w, http.StatusOK, map[string]any{"message": "product found", "data": data})
 	}
@@ -75,12 +75,12 @@ func (h *ProductsDefault) GetOne() http.HandlerFunc {
 
 // RequestBodyProductCreate is a struct that represents the request body of a product to create
 type RequestBodyProductCreate struct {
-	Name string `json:"name"`
-	Quantity int `json:"quantity"`
-	CodeValue string `json:"code_value"`
-	IsPublished bool `json:"is_published"`
-	Expiration string `json:"expiration"`
-	Price float64 `json:"price"`
+	Name        string  `json:"name"`
+	Quantity    int     `json:"quantity"`
+	CodeValue   string  `json:"code_value"`
+	IsPublished bool    `json:"is_published"`
+	Expiration  string  `json:"expiration"`
+	Price       float64 `json:"price"`
 }
 
 // Create creates a product
@@ -100,12 +100,12 @@ func (h *ProductsDefault) Create() http.HandlerFunc {
 
 		// process
 		p := internal.Product{
-			Name: body.Name,
-			Quantity: body.Quantity,
-			CodeValue: body.CodeValue,
+			Name:        body.Name,
+			Quantity:    body.Quantity,
+			CodeValue:   body.CodeValue,
 			IsPublished: body.IsPublished,
-			Expiration: exp,
-			Price: body.Price,
+			Expiration:  exp,
+			Price:       body.Price,
 		}
 		if err := h.rp.Store(&p); err != nil {
 			switch {
@@ -122,13 +122,13 @@ func (h *ProductsDefault) Create() http.HandlerFunc {
 		// response
 		// - serialize
 		data := ProductJSON{
-			ID: p.ID,
-			Name: p.Name,
-			Quantity: p.Quantity,
-			CodeValue: p.CodeValue,
+			ID:          p.ID,
+			Name:        p.Name,
+			Quantity:    p.Quantity,
+			CodeValue:   p.CodeValue,
 			IsPublished: p.IsPublished,
-			Expiration: p.Expiration.Format(time.DateOnly),
-			Price: p.Price,
+			Expiration:  p.Expiration.Format(time.DateOnly),
+			Price:       p.Price,
 		}
 		response.JSON(w, http.StatusCreated, map[string]any{"message": "product created", "data": data})
 	}
@@ -136,12 +136,12 @@ func (h *ProductsDefault) Create() http.HandlerFunc {
 
 // RequestBodyProductUpdate is a struct that represents the request body of a product to update
 type RequestBodyProductUpdate struct {
-	Name string `json:"name"`
-	Quantity int `json:"quantity"`
-	CodeValue string `json:"code_value"`
-	IsPublished bool `json:"is_published"`
-	Expiration string `json:"expiration"`
-	Price float64 `json:"price"`
+	Name        string  `json:"name"`
+	Quantity    int     `json:"quantity"`
+	CodeValue   string  `json:"code_value"`
+	IsPublished bool    `json:"is_published"`
+	Expiration  string  `json:"expiration"`
+	Price       float64 `json:"price"`
 }
 
 // Update updates a product
@@ -168,12 +168,12 @@ func (h *ProductsDefault) Update() http.HandlerFunc {
 		}
 		// - patch product
 		body := RequestBodyProductUpdate{
-			Name: p.Name,
-			Quantity: p.Quantity,
-			CodeValue: p.CodeValue,
+			Name:        p.Name,
+			Quantity:    p.Quantity,
+			CodeValue:   p.CodeValue,
 			IsPublished: p.IsPublished,
-			Expiration: p.Expiration.Format(time.DateOnly),
-			Price: p.Price,
+			Expiration:  p.Expiration.Format(time.DateOnly),
+			Price:       p.Price,
 		}
 		if err := request.JSON(r, &body); err != nil {
 			response.Error(w, http.StatusBadRequest, "invalid request body")
@@ -206,13 +206,13 @@ func (h *ProductsDefault) Update() http.HandlerFunc {
 		// response
 		// - serialize
 		data := ProductJSON{
-			ID: p.ID,
-			Name: p.Name,
-			Quantity: p.Quantity,
-			CodeValue: p.CodeValue,
+			ID:          p.ID,
+			Name:        p.Name,
+			Quantity:    p.Quantity,
+			CodeValue:   p.CodeValue,
 			IsPublished: p.IsPublished,
-			Expiration: p.Expiration.Format(time.DateOnly),
-			Price: p.Price,
+			Expiration:  p.Expiration.Format(time.DateOnly),
+			Price:       p.Price,
 		}
 		response.JSON(w, http.StatusOK, map[string]any{"message": "product updated", "data": data})
 	}

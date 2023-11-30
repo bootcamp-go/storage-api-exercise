@@ -12,5 +12,6 @@ CREATE TABLE `products` (
   `code_value` varchar(255) NOT NULL,
   `is_published` boolean NOT NULL,
   `expiration` date NOT NULL,
-  PRIMARY KEY (`id`),
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `price` decimal(10, 2) NOT NULL,
+  PRIMARY KEY (`id`)
+);
